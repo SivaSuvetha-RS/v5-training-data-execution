@@ -1,0 +1,11 @@
+torch
+numpy
+pandas
+pyyaml
+tqdm
+tokenizers
+beautifulsoup4
+lxml
+langdetect
+datasketch
+pytest
