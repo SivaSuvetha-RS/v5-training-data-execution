@@ -1,4 +1,6 @@
 from pipeline.pipeline import DataPipeline
+from src.firewall import EvaluationFirewall
+from src.ledger import ConsumptionLedger, LearningLedger
 
 print("========== V5 TRAINING DATA EXECUTION ==========")
 
@@ -49,3 +51,34 @@ positions = create_position_ids(packed[0])
 print("Loss mask length:", len(loss))
 print("Attention mask length:", len(attention))
 print("Position IDs:", len(positions))
+
+print("\n===== PHASE 3 =====")
+
+firewall = EvaluationFirewall()
+
+firewall.register_eval_shard("eval_shard_001")
+
+print("Training shard allowed:", firewall.is_allowed("train_shard_001"))
+print("Evaluation shard allowed:", firewall.is_allowed("eval_shard_001"))
+
+consumption = ConsumptionLedger()
+
+consumption.record({
+    "step": 1,
+    "shard": "train_shard_001",
+    "tokens": 32
+})
+
+learning = LearningLedger()
+
+learning.record({
+    "step": 1,
+    "loss": 0.42,
+    "accuracy": 0.91
+})
+
+consumption.save("submission_artifacts/ledgers/consumption.json")
+learning.save("submission_artifacts/ledgers/learning.json")
+
+print("Consumption ledger saved.")
+print("Learning ledger saved.")
