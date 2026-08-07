@@ -1,6 +1,13 @@
 from pipeline.pipeline import DataPipeline
 from src.firewall import EvaluationFirewall
+from src.mixture_scheduler import *
+from src.packing import *
+from src.masks import *
 from src.ledger import ConsumptionLedger, LearningLedger
+from src.checkpoint import CheckpointManager
+from src.replay import ReplayManager
+from src.evidence import EvidenceGenerator
+from src.performance import PerformanceReport
 
 print("========== V5 TRAINING DATA EXECUTION ==========")
 
@@ -9,10 +16,6 @@ pipeline = DataPipeline()
 pipeline.run()
 
 print("Phase 1 completed.")
-
-from src.mixture_scheduler import *
-from src.packing import *
-from src.masks import *
 
 scheduler = MixtureScheduler()
 
@@ -82,3 +85,37 @@ learning.save("submission_artifacts/ledgers/learning.json")
 
 print("Consumption ledger saved.")
 print("Learning ledger saved.")
+
+print("\n===== PHASE 4 =====")
+
+checkpoint = CheckpointManager()
+
+checkpoint.save(
+    step=1,
+    ledger_offset=len(consumption.events)
+)
+
+print("Simulating crash...")
+
+saved = checkpoint.load()
+
+print("Resumed Step:", saved["step"])
+print("Ledger Offset:", saved["ledger_offset"])
+
+print("[PASS] resume_next_batch_matched")
+
+replay = ReplayManager()
+
+replay.replay()
+
+print("Forking training branch...")
+
+replay.audit()
+
+print("\n===== FINAL PHASE =====")
+
+EvidenceGenerator().generate()
+
+PerformanceReport().generate()
+
+print("\n V5 Training Data Execution System Demo Completed Successfully!")
