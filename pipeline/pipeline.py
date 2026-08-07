@@ -54,5 +54,3 @@ class DataPipeline:
             manifest,
             f"{shard_id}.json"
         )
-
-        print("Shard created:", shard_id)

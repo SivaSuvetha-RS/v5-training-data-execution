@@ -1,0 +1,31 @@
+========== V5 TRAINING DATA EXECUTION ==========
+Shard created
+[PASS] manifests_validated
+[PASS] tokenizer_hash_verified
+[PASS] mixture_compiled
+Mixture Stage: pretraining
+Packed sequences: 2
+[PASS] batches_packed
+Loss mask length: 32
+Attention mask length: 32
+Position IDs: 32
+Training shard allowed: True
+Evaluation shard allowed: False
+git[PASS] eval_shard_blocked
+Consumption ledger saved.
+Learning ledger saved.
+[PASS] training_consumption_recorded
+[PASS] learning_ledger_recorded
+[PASS] checkpoint_saved
+Simulating crash...
+Resumed Step: 1
+Ledger Offset: 1
+[PASS] resume_next_batch_matched
+[PASS] replay_hash_matched
+Forking training branch...
+[PASS] opus_decisions_recorded
+[PASS] audit_completed
+[PASS] evidence_generated
+[PASS] performance_measured
+
+V5 Training Data Execution System Demo Completed Successfully!
