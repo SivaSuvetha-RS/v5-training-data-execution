@@ -1,0 +1,26 @@
+[
+    {
+        "lane": "general",
+        "status": "accept",
+        "share": 0.5333333333333333,
+        "floor": 0.0
+    },
+    {
+        "lane": "code",
+        "status": "accept",
+        "share": 0.19999999999999998,
+        "floor": 0.0
+    },
+    {
+        "lane": "indic",
+        "status": "defer",
+        "share": 0.10666666666666667,
+        "floor": 0.08
+    },
+    {
+        "lane": "reasoning",
+        "status": "defer",
+        "share": 0.16,
+        "floor": 0.05
+    }
+]

@@ -14,12 +14,20 @@ class ReplayManager:
         self.history = []
         for batch in batches:
             token_span = batch.get("token_span", [0, 0])
+            payload = {
+                "batch_id": batch["batch_id"],
+                "token_span": token_span,
+                "tokens": batch.get("tokens", []),
+                "stage": batch.get("stage"),
+                "lane": batch.get("lane"),
+            }
             item = {
                 "batch_id": batch["batch_id"],
                 "token_span": token_span,
-                "content_hash": hashlib.sha256(
-                    json.dumps({"batch_id": batch["batch_id"], "token_span": token_span}, sort_keys=True).encode()
-                ).hexdigest(),
+                "stage": batch.get("stage"),
+                "lane": batch.get("lane"),
+                "tokens": batch.get("tokens", []),
+                "content_hash": hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest(),
             }
             self.history.append(item)
         return self.history
@@ -30,6 +38,9 @@ class ReplayManager:
             replayed_item = {
                 "batch_id": item["batch_id"],
                 "token_span": item["token_span"],
+                "stage": item.get("stage"),
+                "lane": item.get("lane"),
+                "tokens": item.get("tokens", []),
                 "content_hash": item["content_hash"],
             }
             self.replayed.append(replayed_item)

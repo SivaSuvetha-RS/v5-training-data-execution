@@ -1,23 +1,23 @@
 ========== V5 TRAINING DATA EXECUTION ==========
 shards created
-manifest validated: train-1-129e515f
-manifest validated: eval-2-16c97070
+manifest validated: train-1-cd9849ce
+evaluation data blocked: 1 item(s)
 [PASS] tokenizer_hash_verified
 [PASS] eval_shard_blocked
 mixture compiled
 mixture plan: {"code": 0.19999999999999998, "general": 0.5333333333333333, "indic": 0.10666666666666667, "reasoning": 0.16}
 [PASS] mixture_compiled
 batches packed
-batch_count=3
+batch_count=2
 [PASS] batches_packed
 batch_1: len=32 loss_tokens=32 attention_tokens=32
 batch_2: len=32 loss_tokens=32 attention_tokens=32
-batch_3: len=32 loss_tokens=0 attention_tokens=0
 OPUS decisions recorded
 OPUS general=accept share=0.533 floor=0.000
 OPUS code=accept share=0.200 floor=0.000
 OPUS indic=defer share=0.107 floor=0.080
 OPUS reasoning=defer share=0.160 floor=0.050
+opus audit saved: /workspaces/v5-training-data-execution/submission_artifacts/opus_audit.json
 [PASS] opus_decisions_recorded
 Consumption ledger saved.
 Learning ledger saved.
@@ -29,14 +29,14 @@ crash simulated
 resumed step=3 ledger_offset=3 next_batch=batch-004
 [PASS] resume_next_batch_matched
 historical stream replayed
-replay batches=[('batch-001', [0, 31]), ('batch-002', [32, 63]), ('batch-003', [64, 95])]
+replay batches=[('batch-001', [0, 31]), ('batch-002', [32, 63])]
 [PASS] replay_hash_matched
 branch forked
 [PASS] branch_forked
 audit completed
 [PASS] evidence_generated
 performance measured
-performance report: {"gpu_idle": "2%", "loader_wait": "1%", "packing_efficiency": 66.67, "useful_tokens_per_second": 64.0}
+performance report: {"gpu_idle": "2%", "loader_wait": "1%", "packing_efficiency": 100.0, "useful_tokens_per_second": 64.0}
 [PASS] performance_measured
 
 V5 Training Data Execution System Demo Completed Successfully!

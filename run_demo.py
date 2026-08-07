@@ -37,7 +37,8 @@ log("========== V5 TRAINING DATA EXECUTION ==========")
 pipeline = DataPipeline()
 train_doc = {"html": "<html><body><h1>Hello V5</h1><p>This is a training document.</p></body></html>", "kind": "train"}
 eval_doc = {"html": "<html><body><h1>Evaluation</h1><p>This is evaluation content and should be blocked.</p></body></html>", "kind": "eval"}
-pipeline.firewall.register_eval_data("This is evaluation content and should be blocked.")
+normalized_eval = pipeline.normalizer.normalize(pipeline.extractor.extract(eval_doc["html"]))
+pipeline.firewall.register_eval_data(normalized_eval)
 shards, blocked = pipeline.run([train_doc, eval_doc])
 
 log("shards created")
@@ -48,7 +49,7 @@ for shard in shards:
         log(f"manifest validated: {shard['shard_id']}")
 
 if blocked:
-    log("evaluation data blocked")
+    log(f"evaluation data blocked: {len(blocked)} item(s)")
 
 log("[PASS] tokenizer_hash_verified")
 log("[PASS] eval_shard_blocked")
@@ -75,7 +76,9 @@ log("[PASS] mixture_compiled")
 # -------------------------
 
 packer = PackingEngine()
-sample = list(range(1, 65))
+train_tokens = shards[0]["tokens"]
+repeat_factor = max(1, (64 // len(train_tokens)) + 1)
+sample = (train_tokens * repeat_factor)[:64]
 packed = packer.pack(sample, 32)
 loss_masks = [create_loss_mask(batch) for batch in packed]
 attention_masks = [create_attention_mask(batch) for batch in packed]
@@ -102,9 +105,14 @@ for lane, share in mixture_plan.items():
         decision = {"lane": lane, "status": "accept", "share": share, "floor": floor}
     opus_decisions.append(decision)
 
+opus_audit_path = ARTIFACTS / "opus_audit.json"
+with open(opus_audit_path, "w") as handle:
+    json.dump(opus_decisions, handle, indent=4)
+
 log("OPUS decisions recorded")
 for item in opus_decisions:
     log(f"OPUS {item['lane']}={item['status']} share={item['share']:.3f} floor={item['floor']:.3f}")
+log(f"opus audit saved: {opus_audit_path}")
 log("[PASS] opus_decisions_recorded")
 
 # -------------------------
@@ -163,10 +171,17 @@ log("[PASS] resume_next_batch_matched" if resume_match else "[FAIL] resume_next_
 # -------------------------
 
 replay = ReplayManager(root_dir=str(ARTIFACTS))
-original_stream = [
-    {"batch_id": f"batch-{index:03d}", "token_span": [32 * (index - 1), 32 * index - 1]}
-    for index in range(1, 4)
-]
+original_stream = []
+for index, batch in enumerate(packed, start=1):
+    original_stream.append(
+        {
+            "batch_id": f"batch-{index:03d}",
+            "token_span": [32 * (index - 1), 32 * index - 1],
+            "tokens": batch,
+            "stage": "pretraining",
+            "lane": "general",
+        }
+    )
 replay_history = replay.build_history_stream(original_stream)
 replayed = replay.replay_stream(replay_history)
 replay.audit()

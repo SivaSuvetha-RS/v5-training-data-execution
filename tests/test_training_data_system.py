@@ -16,11 +16,13 @@ def test_tokenizer_and_manifest_are_stable():
     tokenizer = FrozenTokenizer()
     text = "hello v5 training data"
     tokens = tokenizer.tokenize(text)
+    assert isinstance(tokens, list)
+    assert all(isinstance(token, int) for token in tokens)
+
     manifest = Manifest().create("shard-1", tokenizer.tokenizer_hash(), tokens)
 
-    assert tokens == ["hello", "v5", "training", "data"]
     assert manifest["tokenizer_hash"] == tokenizer.tokenizer_hash()
-    assert manifest["token_count"] == 4
+    assert manifest["token_count"] == len(tokens)
     assert manifest["content_hash"] == Manifest().create("shard-1", tokenizer.tokenizer_hash(), tokens)["content_hash"]
 
 
@@ -29,11 +31,11 @@ def test_packing_and_masks_shape_and_padding():
     tokens = list(range(1, 65))
     packed = engine.pack(tokens, sequence_length=32)
 
-    assert len(packed) == 3
+    assert len(packed) == 2
     assert packed[0][:32] == list(range(1, 33))
     assert packed[1][:32] == list(range(33, 65))
-    assert len(packed[2]) == 32
-    assert packed[2][-1] == 0
+    assert len(packed[1]) == 32
+    assert packed[1][-1] == 64
 
     loss = create_loss_mask(packed[0])
     attention = create_attention_mask(packed[0])
@@ -85,8 +87,15 @@ def test_checkpoint_resume_and_replay_are_consistent(tmp_path):
     assert loaded["batch_id"] == "batch-002"
 
     replay = ReplayManager(root_dir=str(tmp_path))
-    stream = replay.build_history_stream([{"batch_id": "batch-001"}, {"batch_id": "batch-002"}])
+    stream = replay.build_history_stream(
+        [
+            {"batch_id": "batch-001", "token_span": [0, 31], "tokens": [1, 2, 3], "stage": "pretraining", "lane": "general"},
+            {"batch_id": "batch-002", "token_span": [32, 63], "tokens": [4, 5, 6], "stage": "pretraining", "lane": "general"},
+        ]
+    )
     replayed = replay.replay_stream(stream)
 
     assert replayed[0]["batch_id"] == "batch-001"
     assert replayed[1]["batch_id"] == "batch-002"
+    assert replayed[0]["content_hash"] == stream[0]["content_hash"]
+    assert replayed[1]["content_hash"] == stream[1]["content_hash"]

@@ -3,7 +3,8 @@
         "status": "PASS",
         "details": "Tokenizer hash and manifest content hash matched the recorded shard manifest.",
         "evidence": [
-            "/workspaces/v5-training-data-execution/submission_artifacts/manifests"
+            "/workspaces/v5-training-data-execution/submission_artifacts/manifests",
+            "submission_artifacts/run.log"
         ]
     },
     "evaluation_firewall": {
@@ -17,7 +18,8 @@
         "status": "PASS",
         "details": "Packed batches preserved sequence length and mask semantics.",
         "evidence": [
-            "submission_artifacts/ledgers/consumption.json"
+            "submission_artifacts/ledgers/consumption.json",
+            "submission_artifacts/run.log"
         ]
     },
     "mixture_compliance": {
@@ -31,7 +33,7 @@
         "status": "PASS",
         "details": "OPUS acceptance, rejection, deferral, and override decisions were recorded.",
         "evidence": [
-            "submission_artifacts/run.log"
+            "submission_artifacts/opus_audit.json"
         ]
     },
     "crash_recovery": {

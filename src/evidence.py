@@ -13,7 +13,10 @@ class EvidenceGenerator:
             "tokenizer_integrity": {
                 "status": "PASS" if context.get("tokenizer_verified") else "FAIL",
                 "details": "Tokenizer hash and manifest content hash matched the recorded shard manifest.",
-                "evidence": [context.get("manifest_path", "submission_artifacts/manifests")],
+                "evidence": [
+                    context.get("manifest_path", "submission_artifacts/manifests"),
+                    "submission_artifacts/run.log",
+                ],
             },
             "evaluation_firewall": {
                 "status": "PASS" if context.get("eval_blocked") else "FAIL",
@@ -23,7 +26,7 @@ class EvidenceGenerator:
             "packing_correctness": {
                 "status": "PASS" if context.get("packing_verified") else "FAIL",
                 "details": "Packed batches preserved sequence length and mask semantics.",
-                "evidence": ["submission_artifacts/ledgers/consumption.json"],
+                "evidence": ["submission_artifacts/ledgers/consumption.json", "submission_artifacts/run.log"],
             },
             "mixture_compliance": {
                 "status": "PASS" if context.get("mixture_verified") else "FAIL",
@@ -33,7 +36,7 @@ class EvidenceGenerator:
             "opus_audit_trail": {
                 "status": "PASS" if context.get("opus_verified") else "FAIL",
                 "details": "OPUS acceptance, rejection, deferral, and override decisions were recorded.",
-                "evidence": ["submission_artifacts/run.log"],
+                "evidence": ["submission_artifacts/opus_audit.json"],
             },
             "crash_recovery": {
                 "status": "PASS" if context.get("resume_verified") else "FAIL",
