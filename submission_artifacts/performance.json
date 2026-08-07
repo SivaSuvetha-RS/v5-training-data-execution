@@ -1,6 +1,6 @@
 {
-    "packing_efficiency": 96,
-    "useful_tokens_per_second": 12000,
+    "packing_efficiency": 66.67,
+    "useful_tokens_per_second": 64.0,
     "gpu_idle": "2%",
     "loader_wait": "1%"
 }

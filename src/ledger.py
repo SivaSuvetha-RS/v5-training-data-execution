@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+
 
 class ConsumptionLedger:
     def __init__(self):
@@ -8,8 +10,10 @@ class ConsumptionLedger:
         self.events.append(event)
 
     def save(self, path):
-        with open(path, "w") as f:
-            json.dump(self.events, f, indent=4)
+        out_path = Path(path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w") as handle:
+            json.dump(self.events, handle, indent=4)
 
 
 class LearningLedger:
@@ -20,5 +24,7 @@ class LearningLedger:
         self.records.append(data)
 
     def save(self, path):
-        with open(path, "w") as f:
-            json.dump(self.records, f, indent=4)
+        out_path = Path(path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w") as handle:
+            json.dump(self.records, handle, indent=4)

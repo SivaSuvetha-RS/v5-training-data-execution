@@ -1,0 +1,7 @@
+{
+    "step": 3,
+    "ledger_offset": 3,
+    "batch_id": "batch-003",
+    "history_hash": "sha256:demo",
+    "branch": "fork-from-checkpoint-003"
+}

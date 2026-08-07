@@ -1,4 +1,6 @@
 {
-    "step": 1,
-    "ledger_offset": 1
+    "step": 3,
+    "ledger_offset": 3,
+    "batch_id": "batch-003",
+    "history_hash": "sha256:demo"
 }

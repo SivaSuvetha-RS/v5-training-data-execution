@@ -1,7 +1,35 @@
 [
     {
         "step": 1,
-        "shard": "train_shard_001",
-        "tokens": 32
+        "batch_id": "batch-001",
+        "token_span": [
+            0,
+            31
+        ],
+        "source_shard": "train-1-129e515f",
+        "tokens": 32,
+        "loss_tokens": 32
+    },
+    {
+        "step": 2,
+        "batch_id": "batch-002",
+        "token_span": [
+            32,
+            63
+        ],
+        "source_shard": "train-1-129e515f",
+        "tokens": 32,
+        "loss_tokens": 32
+    },
+    {
+        "step": 3,
+        "batch_id": "batch-003",
+        "token_span": [
+            64,
+            95
+        ],
+        "source_shard": "train-1-129e515f",
+        "tokens": 32,
+        "loss_tokens": 0
     }
 ]

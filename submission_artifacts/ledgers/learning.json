@@ -1,7 +1,23 @@
 [
     {
         "step": 1,
-        "loss": 0.42,
-        "accuracy": 0.91
+        "batch_id": "batch-001",
+        "loss": 0.37,
+        "accuracy": 0.91,
+        "loss_tokens": 32
+    },
+    {
+        "step": 2,
+        "batch_id": "batch-002",
+        "loss": 0.39,
+        "accuracy": 0.92,
+        "loss_tokens": 32
+    },
+    {
+        "step": 3,
+        "batch_id": "batch-003",
+        "loss": 0.41,
+        "accuracy": 0.93,
+        "loss_tokens": 0
     }
 ]

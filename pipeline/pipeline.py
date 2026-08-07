@@ -9,48 +9,49 @@ from pipeline.firewall import EvaluationFirewall
 
 
 class DataPipeline:
-
     def __init__(self):
-
         self.extractor = Extractor()
         self.normalizer = TextNormalizer()
         self.tokenizer = FrozenTokenizer()
         self.shards = ShardBuilder()
         self.manifest = Manifest()
         self.firewall = EvaluationFirewall()
+        self.shard_records = []
+        self.blocked_documents = []
 
-    def run(self):
+    def run(self, documents=None):
+        if documents is None:
+            documents = [{"html": "<html><body><h1>Hello V5</h1></body></html>", "kind": "train"}]
 
-        sample_html = """
-        <html>
-        <body>
-        <h1>Hello V5</h1>
-        <p>This is a training document.</p>
-        </body>
-        </html>
-        """
+        for index, document in enumerate(documents):
+            payload = document if isinstance(document, dict) else {"html": document, "kind": "train"}
+            html = payload.get("html", "")
+            kind = payload.get("kind", "train")
 
-        text = self.extractor.extract(sample_html)
+            text = self.extractor.extract(html)
+            text = self.normalizer.normalize(text)
 
-        text = self.normalizer.normalize(text)
+            if not self.firewall.allow(text):
+                self.blocked_documents.append({"kind": kind, "reason": "blocked_by_firewall"})
+                continue
 
-        if not self.firewall.allow(text):
-            print("Evaluation data blocked.")
-            return
+            tokens = self.tokenizer.tokenize(text)
+            shard_id = f"{kind}-{index + 1}-{uuid.uuid4().hex[:8]}"
+            shard_path = self.shards.save(shard_id, tokens)
 
-        tokens = self.tokenizer.tokenize(text)
+            manifest = self.manifest.create(shard_id, self.tokenizer.tokenizer_hash(), tokens, kind=kind)
+            manifest_filename = f"{shard_id}.json"
+            self.manifest.save(manifest, manifest_filename)
 
-        shard_id = str(uuid.uuid4())
+            self.shard_records.append(
+                {
+                    "shard_id": shard_id,
+                    "kind": kind,
+                    "tokens": tokens,
+                    "manifest": manifest,
+                    "manifest_path": f"submission_artifacts/manifests/{manifest_filename}",
+                    "shard_path": shard_path,
+                }
+            )
 
-        self.shards.save(shard_id, tokens)
-
-        manifest = self.manifest.create(
-            shard_id,
-            self.tokenizer.tokenizer_hash(),
-            tokens
-        )
-
-        self.manifest.save(
-            manifest,
-            f"{shard_id}.json"
-        )
+        return self.shard_records, self.blocked_documents
