@@ -1,0 +1,66 @@
+{
+  "accepted_rows": 11800,
+  "clean_characters": 66044748,
+  "clean_whitespace_tokens": 10734722,
+  "cleaning_counts": {
+    "emails_masked": 249,
+    "html_entities_decoded": 158,
+    "indic_joiners_preserved": 7,
+    "invisible_or_control_chars_removed": 263,
+    "ip_addresses_masked": 38,
+    "language_low_confidence_or_mismatch": 8,
+    "phones_masked": 476,
+    "quality_repeated_lines": 192
+  },
+  "cleaning_script_sha256": "968d1e2559a49da95825d7ecdb83ca943cd7cd624d2ba6b9a5104c28282b800e",
+  "contamination_canaries_found": 0,
+  "dataset": "HuggingFaceH4/ultrachat_200k",
+  "dataset_license": "MIT",
+  "duplicate_hashes_removed": 0,
+  "duplicate_tokens_removed": 0,
+  "exact_duplicates_removed": 0,
+  "messages": 74304,
+  "near_duplicates_removed": 0,
+  "processed_hash": "8e5f7a20f7b0bba8f8330e62f81fdcabb1738199385dc18815bc0c4572fd5ef3",
+  "processing_notes": [
+    "Whitespace-delimited words are a transparent size proxy, not model-tokenizer counts.",
+    "The English-only source split is checked with langdetect; this sample does not validate Indic language recall.",
+    "The canary scan checks two synthetic canaries, not full benchmark fingerprints.",
+    "Name-based PII detection and manually reviewed false-positive assessment are not included.",
+    "MinHash LSH uses 5-word shingles, a deterministic 128-shingle cap, 32 permutations, and a 0.88 candidate threshold."
+  ],
+  "quality_rejection_reasons": {
+    "emails_masked": 249,
+    "html_entities_decoded": 158,
+    "indic_joiners_preserved": 7,
+    "invisible_or_control_chars_removed": 263,
+    "ip_addresses_masked": 38,
+    "language_low_confidence_or_mismatch": 8,
+    "phones_masked": 476,
+    "quality_repeated_lines": 192
+  },
+  "rejected_language": 8,
+  "rejected_quality": 192,
+  "sample_definition": "First 12,000 rows of train_sft; fixed source order; Hugging Face Datasets Server",
+  "source_characters": 68039684,
+  "source_languages": {
+    "en": 11800,
+    "es": 4,
+    "fr": 4
+  },
+  "source_revision": "8049631c405ae6576f93f445c6b8166f76f5505a",
+  "source_rows": 12000,
+  "source_rows_in_split": 207865,
+  "source_whitespace_tokens": 10997513,
+  "split": "train_sft",
+  "strategies_applied": [
+    "Structured conversation normalization",
+    "Unicode and whitespace cleanup",
+    "English language validation",
+    "Heuristic quality filtering",
+    "Exact and MinHash near-deduplication",
+    "Regex PII masking",
+    "Canary contamination scan",
+    "Deterministic content hashes and provenance"
+  ]
+}
