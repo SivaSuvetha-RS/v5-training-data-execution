@@ -1,59 +1,95 @@
-# V5 Training Data Execution System
+# Conversational Dataset Cleaning Dashboard
 
-This repository implements a compact but complete training-data execution pipeline for V5. The system is designed to show how documents flow through tokenization, manifest creation, mixture planning, packing, batching, ledger tracking, checkpointing, crash recovery, replay, and audit in a reproducible way.
+This project demonstrates a reproducible workflow for cleaning and auditing a
+sample of conversational training data. It includes a Python data-cleaning
+script, a browser-based dashboard for exploring the results, and a machine-
+readable report.
 
-## Architecture
+## Dataset
 
-The pipeline follows this execution path:
+The workflow uses the English `train_sft` split of
+[HuggingFaceH4/ultrachat_200k](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k),
+an MIT-licensed conversational dataset. It fetches a fixed source revision and
+processes the first 12,000 rows by default, so runs use a consistent sample.
 
-1. Documents are extracted and normalized.
-2. A frozen tokenizer produces immutable tokenized shards.
-3. Each shard is paired with a manifest containing tokenizer and content hashes.
-4. A mixture scheduler compiles lane weights and protected floors.
-5. A packing engine builds deterministic batches with loss, attention, and position masks.
-6. Consumption and learning ledgers record what was used and what the model learned.
-7. Checkpoints store ledger offsets and batch state for crash recovery.
-8. Replay and audit utilities reconstruct a historical stream and verify batch hashes.
-9. Evidence and performance generators write the required machine-readable reports.
+## What the cleaner does
 
-This keeps the system auditable because each step produces artifacts that can be inspected later.
+- Normalizes structured conversation messages, Unicode, HTML entities, and
+  whitespace.
+- Checks language and filters short or repetitive conversations.
+- Finds exact and near-duplicate content.
+- Masks email addresses, phone numbers, and IPv4 addresses using regular
+  expressions.
+- Checks for synthetic contamination canaries and records content hashes and
+  processing details.
 
-## Repository directory guide
+The cleaning report describes the operations and their results. PII detection
+is regex-based and does not reliably detect names. The canary check is limited
+to synthetic examples; neither should be treated as comprehensive protection.
+Word counts in the report are whitespace-delimited estimates, not model
+tokenizer counts.
 
-- [run_demo.py](run_demo.py) — entry point that runs the full demonstration.
-- [pipeline/](pipeline/) — core data pipeline implementation.
-  - [pipeline/pipeline.py](pipeline/pipeline.py) — orchestrates document → shard → manifest processing.
-  - [pipeline/tokenizer.py](pipeline/tokenizer.py) — frozen tokenizer implementation.
-  - [pipeline/manifest.py](pipeline/manifest.py) — manifest creation and validation logic.
-  - [pipeline/shard_builder.py](pipeline/shard_builder.py) — writes shard payloads to disk.
-  - [pipeline/firewall.py](pipeline/firewall.py) — evaluation-data blocking logic.
-- [src/](src/) — training execution helpers and bookkeeping modules.
-  - [src/mixture_scheduler.py](src/mixture_scheduler.py) — mixture stages, lane weights, and protected floors.
-  - [src/packing.py](src/packing.py) — batch packing and padding logic.
-  - [src/masks.py](src/masks.py) — loss, attention, and position mask helpers.
-  - [src/ledger.py](src/ledger.py) — consumption and learning ledger storage.
-  - [src/checkpoint.py](src/checkpoint.py) — crash-safe checkpointing.
-  - [src/replay.py](src/replay.py) — replay and audit support.
-  - [src/evidence.py](src/evidence.py) — evidence bundle generation.
-  - [src/performance.py](src/performance.py) — packing and throughput reporting.
-- [tests/](tests/) — regression tests for the main invariants.
-- [submission_artifacts/](submission_artifacts/) — generated outputs such as logs, manifests, ledgers, checkpoints, replay audit, and evidence reports.
-- [data/](data/) and [config/](config/) — sample input and runtime data locations.
+## Project contents
 
-## Design decisions
+- `S4-data-cleaning-deduplication/clean_dataset.py` fetches and cleans the
+  dataset.
+- `S4-data-cleaning-deduplication/index.html` is the interactive results
+  dashboard.
+- `S4-data-cleaning-deduplication/artifacts/stats.json` contains the report
+  displayed by the dashboard.
+- `tests/test_assignment4_cleaning.py` contains focused tests for the cleaning
+  workflow.
 
-- The tokenizer is intentionally frozen and versioned so shard manifests remain reproducible.
-- Shard manifests are content-addressed and validated against the token stream.
-- Evaluation data is blocked by the firewall to preserve training integrity.
-- Checkpoints are tied to the next expected batch so resume does not skip or repeat work.
-- Replay uses deterministic hashes so historical reconstruction can be verified.
+The included report reflects a sample run with 12,000 source rows and 11,800
+accepted rows. Results are sample-specific and are not projections of the full
+dataset.
 
-## Run
+## Run the cleaner
 
-Use:
+Install the project requirements and run the script from the repository root:
 
 ```bash
-python run_demo.py
+pip install -r requirements.txt
+python S4-data-cleaning-deduplication/clean_dataset.py
 ```
 
-This produces the complete demonstration, including logs, manifests, ledgers, checkpoints, replay evidence, and performance reports in the submission_artifacts directory.
+The report is written to `S4-data-cleaning-deduplication/artifacts/stats.json`.
+To also save the cleaned conversations as JSONL, opt in with:
+
+```bash
+python S4-data-cleaning-deduplication/clean_dataset.py --write-cleaned
+```
+
+For a smaller run, use `--rows`, for example:
+
+```bash
+python S4-data-cleaning-deduplication/clean_dataset.py --rows 100
+```
+
+## View the dashboard locally
+
+From the repository root, start a local web server:
+
+```bash
+python -m http.server 8000
+```
+
+Then open <http://localhost:8000/S4-data-cleaning-deduplication/>. The dashboard
+loads `artifacts/stats.json` from the same directory.
+
+## Deploy
+
+The root `netlify.toml` is configured to publish the dashboard directory as a
+static site. Connect this repository to Netlify and deploy using the detected
+configuration; no build command is required. Keep
+`S4-data-cleaning-deduplication/artifacts/stats.json` in the published
+directory so the dashboard can display the report. Netlify hosts the static
+dashboard; it does not run the Python cleaning script.
+
+## Tests
+
+Run the focused cleaning tests with:
+
+```bash
+pytest -q tests/test_assignment4_cleaning.py
+```
